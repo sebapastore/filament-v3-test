@@ -33,8 +33,16 @@ class SaleResource extends Resource
                         Forms\Components\Select::make('customer_id')
                             ->relationship('customer', 'name')
                             ->searchable()
-                            ->required(),
-
+                            ->searchDebounce(200)
+                            ->required()
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->maxLength(255)
+                                    ->required(),
+                                Forms\Components\TextInput::make('document_number')
+                                    ->maxLength(255)
+                                    ->required(),
+                            ]),
                 ]),
 
                 Forms\Components\Section::make('Items')
@@ -45,11 +53,13 @@ class SaleResource extends Resource
                                 Forms\Components\TextInput::make('quantity')
                                     ->numeric()
                                     ->required()
-                                    ->live(),
+                                    ->live()
+                                    ->debounce(100),
                                 Forms\Components\Select::make('item_id')
                                     ->getSearchResultsUsing(fn (string $search): array => Item::query()->where('name', 'like', "%{$search}%")->limit(50)->pluck('name', 'id')->toArray())
                                     ->getOptionLabelUsing(fn ($value): ?string => Item::query()->find($value)?->name)
                                     ->searchable()
+                                    ->searchDebounce(200)
                                     ->required(),
                                 Forms\Components\Placeholder::make('price')
                                     ->content(function (Forms\Get $get) {

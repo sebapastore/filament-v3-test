@@ -8,6 +8,7 @@ use App\Models\Item;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,13 +25,19 @@ class ItemResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label("Nombre")
                     ->required()
+                    ->formatStateUsing(fn (?string $state): string => ucwords($state))
                     ->maxLength(255),
                 Forms\Components\TextInput::make('price')
-                    ->numeric()
+                    //->numeric()
+                    ->mask(RawJs::make(<<<'JS'
+                        $money($input)
+                    JS))
                     ->prefix('G')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                ,
             ]);
     }
 
@@ -39,10 +46,10 @@ class ItemResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('price'),
             ])
             ->filters([
                 //
