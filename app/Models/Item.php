@@ -15,7 +15,6 @@ class Item extends Model
     protected function price(): Attribute
     {
         return Attribute::make(
-            get: fn (int $value) => number_format($value, 0, ","),
             set: fn (string $value) => str_replace(',', '', $value),
         );
     }
